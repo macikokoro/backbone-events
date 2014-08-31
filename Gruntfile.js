@@ -4,8 +4,11 @@ module.exports = function(grunt) {
   grunt.loadNpmTasks('grunt-browserify');
 
   grunt.initConfig({
-    clean: ['build'],
-
+    clean: {
+      dev: {
+        src: ['build/']
+      }
+    },
     copy: {
       dev: {
         expand: true,
@@ -18,7 +21,7 @@ module.exports = function(grunt) {
     browserify: {
       dev: {
         options: {
-          transform: ['debowerify'],
+          transform: ['debowerify', 'hbsfy'],
           debug: true
         },
         src: ['app/**/*.js'],
@@ -26,5 +29,5 @@ module.exports = function(grunt) {
       }
     }
   });
-  grunt.registerTask('default', ['clean', 'browserify', 'copy']);
+  grunt.registerTask('build:dev', ['clean:dev', 'browserify:dev', 'copy:dev']);
 };

@@ -1,7 +1,8 @@
-var Backbone = require('backbone');
 var $ = require('jquery');
-Backbone.$ = $;
+var Note = require('./models/Note');
+var SimpleView = require('./views/SimpleView');
 
-var Mainview = require('./views/search-view.js');
+var note = new Note();
+var simpleView = new SimpleView({model: note});
 
-var mainview = new Mainview ({ el: $("#search-container") });
+$('#backbone-content').append(simpleView.$el);
