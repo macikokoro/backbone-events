@@ -9,47 +9,87 @@ var formView = new FormView({model: calculator});
 
 $('#backbone').append(formView.el);
 
-},{"./../bower_components/jquery/dist/jquery.js":6,"./js/models/calculator":2,"./js/views/formView":5}],2:[function(require,module,exports){
+},{"./../bower_components/jquery/dist/jquery.js":5,"./js/models/calculator":2,"./js/views/formView":4}],2:[function(require,module,exports){
 var Backbone = require('backbone');
 var $ = require("./../../../bower_components/jquery/dist/jquery.js");
 Backbone.$ = $;
 
 var Calculator = Backbone.Model.extend({
   defaults: {
-    numberArray: [],
     Title: 'The meeny miny mo calculator',
-    mean: ' '
+    totalNums: '',
+    mean: '',
+    median: '',
+    mode: []
   },
 
-  findMean: function(){
-    var data = this.get('numberArray');
+  findMean: function() {
+    var data = this.get('inputArray');
+    this.set({totalNums: data.length});
     var sum = 0;
     for(var i = 0; i < data.length; i++) sum += Number(data[i]);
-    this.set({mean: sum / (data.length)});
+    this.set({mean: sum / Number(data.length)});
+  },
+
+  findMedian: function() {
+    var data = this.get('inputArray');
+    data.sort(function(a,b) {return a-b});
+
+    var middle = Math.floor(data.length / 2);
+
+    if(data.length % 2 === 0) {
+      this.set({median: (Number(data[middle - 1]) + Number(data[middle])) / 2});
+      console.log("array is even");
+    } else {
+      this.set({median: (Number(data[middle]))});
+      console.log("array is odd");
+    }
+  },
+
+  findMode: function() {
+    var data = this.get('inputArray');
+    data.sort(function(a, b) {return a-b;});
+    var result = [];
+
+    for (var i = 0; i < data.length; i++) {
+      if (data[i + 1] === data[i]) {
+        result.push(data[i]);
+      }
+    }
+
+    var unique = result.filter(function(elem, index, self) {
+      return index == self.indexOf(elem);
+
+    });
+    if (result.length < 1) {
+      this.set({mode: data});
+    } else {
+      this.set({mode: unique});
+    }
   }
 });
 
 module.exports = Calculator;
 
-},{"./../../../bower_components/jquery/dist/jquery.js":6,"backbone":7}],3:[function(require,module,exports){
-
-},{}],4:[function(require,module,exports){
+},{"./../../../bower_components/jquery/dist/jquery.js":5,"backbone":6}],3:[function(require,module,exports){
 // hbsfy compiled Handlebars template
 var HandlebarsCompiler = require('hbsfy/runtime');
 module.exports = HandlebarsCompiler.template({"compiler":[6,">= 2.0.0-beta.1"],"main":function(depth0,helpers,partials,data) {
   var helper, functionType="function", helperMissing=helpers.helperMissing, escapeExpression=this.escapeExpression;
-  return "<section>\n<h2>"
+  return "<section>\n  <h2>"
     + escapeExpression(((helper = (helper = helpers.Title || (depth0 != null ? depth0.Title : depth0)) != null ? helper : helperMissing),(typeof helper === functionType ? helper.call(depth0, {"name":"Title","hash":{},"data":data}) : helper)))
-    + "</h2>\n<form>\n  <label>Numbers Set: </label>\n<input type=\"text\" placeholder=\"numbers only no commas\" id=\"input\">\n<button type=\"button\" id=\"run\">Hit me!</button>\n</form>\n<hr/>\n<p>Mean: <span>"
+    + "</h2>\n  <form>\n    <label>Numbers Set: </label>\n    <input type=\"text\" placeholder=\"numbers only no commas\" id=\"input\">\n    <button type=\"button\" id=\"run\">Hit me!</button>\n  </form>\n  <hr/>\n  <p>Total Numbers: <span>"
+    + escapeExpression(((helper = (helper = helpers.totalNums || (depth0 != null ? depth0.totalNums : depth0)) != null ? helper : helperMissing),(typeof helper === functionType ? helper.call(depth0, {"name":"totalNums","hash":{},"data":data}) : helper)))
+    + "</span></p>\n  <p>Mean: <span>"
     + escapeExpression(((helper = (helper = helpers.mean || (depth0 != null ? depth0.mean : depth0)) != null ? helper : helperMissing),(typeof helper === functionType ? helper.call(depth0, {"name":"mean","hash":{},"data":data}) : helper)))
-    + "</span></p>\n<p>Median: "
+    + "</span></p>\n  <p>Median: <span>"
     + escapeExpression(((helper = (helper = helpers.median || (depth0 != null ? depth0.median : depth0)) != null ? helper : helperMissing),(typeof helper === functionType ? helper.call(depth0, {"name":"median","hash":{},"data":data}) : helper)))
-    + "</p>\n<p>Mode: "
+    + "</span></p>\n  <p>Mode: <span>"
     + escapeExpression(((helper = (helper = helpers.mode || (depth0 != null ? depth0.mode : depth0)) != null ? helper : helperMissing),(typeof helper === functionType ? helper.call(depth0, {"name":"mode","hash":{},"data":data}) : helper)))
-    + "</p>\n</section>\n";
+    + "</span></p>\n</section>\n";
 },"useData":true});
 
-},{"hbsfy/runtime":16}],5:[function(require,module,exports){
+},{"hbsfy/runtime":15}],4:[function(require,module,exports){
 var Backbone = require('backbone');
 var $ = require("./../../../bower_components/jquery/dist/jquery.js");
 Backbone.$ = $;
@@ -69,16 +109,20 @@ module.exports = Backbone.View.extend({
         return this;
     },
     events: {
-        'click #run': 'getResults',
+        'submit': 'calculate',
+        'click #run': 'calculate',
       },
 
-      getResults: function() {
-        this.model.set({numberArray: this.$('#input').val().split(' ')});
+      calculate: function(e) {
+        e.preventDefault();
+        this.model.set({inputArray: this.$('#input').val().split(' ')});
         this.model.findMean();
+        this.model.findMedian();
+        this.model.findMode();
       }
 });
 
-},{"../templates/form-template.hbs":4,"./../../../bower_components/jquery/dist/jquery.js":6,"backbone":7}],6:[function(require,module,exports){
+},{"../templates/form-template.hbs":3,"./../../../bower_components/jquery/dist/jquery.js":5,"backbone":6}],5:[function(require,module,exports){
 /*!
  * jQuery JavaScript Library v2.1.1
  * http://jquery.com/
@@ -9270,7 +9314,7 @@ return jQuery;
 
 }));
 
-},{}],7:[function(require,module,exports){
+},{}],6:[function(require,module,exports){
 //     Backbone.js 1.1.2
 
 //     (c) 2010-2014 Jeremy Ashkenas, DocumentCloud and Investigative Reporters & Editors
@@ -10880,7 +10924,7 @@ return jQuery;
 
 }));
 
-},{"underscore":8}],8:[function(require,module,exports){
+},{"underscore":7}],7:[function(require,module,exports){
 //     Underscore.js 1.7.0
 //     http://underscorejs.org
 //     (c) 2009-2014 Jeremy Ashkenas, DocumentCloud and Investigative Reporters & Editors
@@ -12297,7 +12341,7 @@ return jQuery;
   }
 }.call(this));
 
-},{}],9:[function(require,module,exports){
+},{}],8:[function(require,module,exports){
 "use strict";
 /*globals Handlebars: true */
 var base = require("./handlebars/base");
@@ -12333,7 +12377,7 @@ Handlebars.create = create;
 Handlebars['default'] = Handlebars;
 
 exports["default"] = Handlebars;
-},{"./handlebars/base":10,"./handlebars/exception":11,"./handlebars/runtime":12,"./handlebars/safe-string":13,"./handlebars/utils":14}],10:[function(require,module,exports){
+},{"./handlebars/base":9,"./handlebars/exception":10,"./handlebars/runtime":11,"./handlebars/safe-string":12,"./handlebars/utils":13}],9:[function(require,module,exports){
 "use strict";
 var Utils = require("./utils");
 var Exception = require("./exception")["default"];
@@ -12565,7 +12609,7 @@ var createFrame = function(object) {
   return frame;
 };
 exports.createFrame = createFrame;
-},{"./exception":11,"./utils":14}],11:[function(require,module,exports){
+},{"./exception":10,"./utils":13}],10:[function(require,module,exports){
 "use strict";
 
 var errorProps = ['description', 'fileName', 'lineNumber', 'message', 'name', 'number', 'stack'];
@@ -12594,7 +12638,7 @@ function Exception(message, node) {
 Exception.prototype = new Error();
 
 exports["default"] = Exception;
-},{}],12:[function(require,module,exports){
+},{}],11:[function(require,module,exports){
 "use strict";
 var Utils = require("./utils");
 var Exception = require("./exception")["default"];
@@ -12788,7 +12832,7 @@ exports.noop = noop;function initData(context, data) {
   }
   return data;
 }
-},{"./base":10,"./exception":11,"./utils":14}],13:[function(require,module,exports){
+},{"./base":9,"./exception":10,"./utils":13}],12:[function(require,module,exports){
 "use strict";
 // Build out our basic SafeString type
 function SafeString(string) {
@@ -12800,7 +12844,7 @@ SafeString.prototype.toString = function() {
 };
 
 exports["default"] = SafeString;
-},{}],14:[function(require,module,exports){
+},{}],13:[function(require,module,exports){
 "use strict";
 /*jshint -W004 */
 var SafeString = require("./safe-string")["default"];
@@ -12889,12 +12933,12 @@ exports.isEmpty = isEmpty;function appendContextPath(contextPath, id) {
 }
 
 exports.appendContextPath = appendContextPath;
-},{"./safe-string":13}],15:[function(require,module,exports){
+},{"./safe-string":12}],14:[function(require,module,exports){
 // Create a simple path alias to allow browserify to resolve
 // the runtime on a supported path.
 module.exports = require('./dist/cjs/handlebars.runtime');
 
-},{"./dist/cjs/handlebars.runtime":9}],16:[function(require,module,exports){
+},{"./dist/cjs/handlebars.runtime":8}],15:[function(require,module,exports){
 module.exports = require("handlebars/runtime")["default"];
 
-},{"handlebars/runtime":15}]},{},[1,2,3,5]);
+},{"handlebars/runtime":14}]},{},[1,2,4]);

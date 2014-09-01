@@ -17,11 +17,15 @@ module.exports = Backbone.View.extend({
         return this;
     },
     events: {
-        'click #run': 'getResults',
+        'submit': 'calculate',
+        'click #run': 'calculate',
       },
 
-      getResults: function() {
-        this.model.set({numberArray: this.$('#input').val().split(' ')});
+      calculate: function(e) {
+        e.preventDefault();
+        this.model.set({inputArray: this.$('#input').val().split(' ')});
         this.model.findMean();
+        this.model.findMedian();
+        this.model.findMode();
       }
 });
