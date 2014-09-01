@@ -1,54 +1,84 @@
 (function e(t,n,r){function s(o,u){if(!n[o]){if(!t[o]){var a=typeof require=="function"&&require;if(!u&&a)return a(o,!0);if(i)return i(o,!0);var f=new Error("Cannot find module '"+o+"'");throw f.code="MODULE_NOT_FOUND",f}var l=n[o]={exports:{}};t[o][0].call(l.exports,function(e){var n=t[o][1][e];return s(n?n:e)},l,l.exports,e,t,n,r)}return n[o].exports}var i=typeof require=="function"&&require;for(var o=0;o<r.length;o++)s(r[o]);return s})({1:[function(require,module,exports){
 var $ = require("./../bower_components/jquery/dist/jquery.js");
-var Note = require('./models/Note');
-var SimpleView = require('./views/SimpleView');
+var Calculator = require('./js/models/calculator');
+var FormView = require('./js/views/formView');
 
-var note = new Note();
-var simpleView = new SimpleView({model: note});
+var calculator = new Calculator;
 
-$('#backbone-content').append(simpleView.$el);
+var formView = new FormView({model: calculator});
 
-},{"./../bower_components/jquery/dist/jquery.js":6,"./models/Note":2,"./views/SimpleView":5}],2:[function(require,module,exports){
+$('#backbone').append(formView.el);
+
+},{"./../bower_components/jquery/dist/jquery.js":6,"./js/models/calculator":2,"./js/views/formView":5}],2:[function(require,module,exports){
 var Backbone = require('backbone');
+var $ = require("./../../../bower_components/jquery/dist/jquery.js");
+Backbone.$ = $;
 
-module.exports = Backbone.Model.extend({
+var Calculator = Backbone.Model.extend({
   defaults: {
-    noteBody: 'hello world'
+    numberArray: [],
+    Title: 'The meeny miny mo calculator',
+    mean: ' '
+  },
+
+  findMean: function(){
+    var data = this.get('numberArray');
+    var sum = 0;
+    for(var i = 0; i < data.length; i++) sum += Number(data[i]);
+    this.set({mean: sum / (data.length)});
   }
 });
 
-},{"backbone":7}],3:[function(require,module,exports){
-module.exports=require(2)
-},{"/Users/twinmacstation/Desktop/Main/macpro-codefellows/backbone/mean-median-mode/app/models/Note.js":2,"backbone":7}],4:[function(require,module,exports){
+module.exports = Calculator;
+
+},{"./../../../bower_components/jquery/dist/jquery.js":6,"backbone":7}],3:[function(require,module,exports){
+
+},{}],4:[function(require,module,exports){
 // hbsfy compiled Handlebars template
 var HandlebarsCompiler = require('hbsfy/runtime');
 module.exports = HandlebarsCompiler.template({"compiler":[6,">= 2.0.0-beta.1"],"main":function(depth0,helpers,partials,data) {
   var helper, functionType="function", helperMissing=helpers.helperMissing, escapeExpression=this.escapeExpression;
-  return "<h5>Where is that note?</h5>\n<h1>"
-    + escapeExpression(((helper = (helper = helpers.noteBody || (depth0 != null ? depth0.noteBody : depth0)) != null ? helper : helperMissing),(typeof helper === functionType ? helper.call(depth0, {"name":"noteBody","hash":{},"data":data}) : helper)))
-    + "</h1>\n<h2>It should be up there</h2>\n<form>\n  <input type=\"text\" name=\"input\" id=\"numbers\">\n  <input type=\"button\" name=\"hitme\" value=\"Hello\">\n</form>\n";
+  return "<section>\n<h2>"
+    + escapeExpression(((helper = (helper = helpers.Title || (depth0 != null ? depth0.Title : depth0)) != null ? helper : helperMissing),(typeof helper === functionType ? helper.call(depth0, {"name":"Title","hash":{},"data":data}) : helper)))
+    + "</h2>\n<form>\n  <label>Numbers Set: </label>\n<input type=\"text\" placeholder=\"numbers only no commas\" id=\"input\">\n<button type=\"button\" id=\"run\">Hit me!</button>\n</form>\n<hr/>\n<p>Mean: <span>"
+    + escapeExpression(((helper = (helper = helpers.mean || (depth0 != null ? depth0.mean : depth0)) != null ? helper : helperMissing),(typeof helper === functionType ? helper.call(depth0, {"name":"mean","hash":{},"data":data}) : helper)))
+    + "</span></p>\n<p>Median: "
+    + escapeExpression(((helper = (helper = helpers.median || (depth0 != null ? depth0.median : depth0)) != null ? helper : helperMissing),(typeof helper === functionType ? helper.call(depth0, {"name":"median","hash":{},"data":data}) : helper)))
+    + "</p>\n<p>Mode: "
+    + escapeExpression(((helper = (helper = helpers.mode || (depth0 != null ? depth0.mode : depth0)) != null ? helper : helperMissing),(typeof helper === functionType ? helper.call(depth0, {"name":"mode","hash":{},"data":data}) : helper)))
+    + "</p>\n</section>\n";
 },"useData":true});
 
 },{"hbsfy/runtime":16}],5:[function(require,module,exports){
 var Backbone = require('backbone');
-var $ = require("./../../bower_components/jquery/dist/jquery.js");
+var $ = require("./../../../bower_components/jquery/dist/jquery.js");
 Backbone.$ = $;
 
 module.exports = Backbone.View.extend({
-  tagName: 'div',
+    tagName: 'div',
 
-  initialize: function() {
-    this.render();
-  },
+    initialize: function () {
+      this.model.on('change', this.render, this);
+        this.render();
+    },
 
-  render: function() {
-    var template = require('../templates/simpleView.hbs');
-    this.$el.html(template(this.model.attributes));
-    return this;
-  }
+    render: function () {
+        var template = require('../templates/form-template.hbs');
+        var data = this.model.attributes;
+        this.$el.html(template(data));
+        return this;
+    },
+    events: {
+        'click #run': 'getResults',
+      },
+
+      getResults: function() {
+        this.model.set({numberArray: this.$('#input').val().split(' ')});
+        this.model.findMean();
+      }
 });
 
-},{"../templates/simpleView.hbs":4,"./../../bower_components/jquery/dist/jquery.js":6,"backbone":7}],6:[function(require,module,exports){
+},{"../templates/form-template.hbs":4,"./../../../bower_components/jquery/dist/jquery.js":6,"backbone":7}],6:[function(require,module,exports){
 /*!
  * jQuery JavaScript Library v2.1.1
  * http://jquery.com/
@@ -12867,4 +12897,4 @@ module.exports = require('./dist/cjs/handlebars.runtime');
 },{"./dist/cjs/handlebars.runtime":9}],16:[function(require,module,exports){
 module.exports = require("handlebars/runtime")["default"];
 
-},{"handlebars/runtime":15}]},{},[1,3,5]);
+},{"handlebars/runtime":15}]},{},[1,2,3,5]);
